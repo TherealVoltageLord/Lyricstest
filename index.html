@@ -3,29 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lyrics API Tester</title>
+    <title>Volt⚡Lyrics📜 API Tester</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
+            background: linear-gradient(135deg, orangered, orangered);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            color: orangered;
         }
         .container {
-            background: #fff;
+            background: coral;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
             width: 400px;
             text-align: center;
         }
         h1 {
             margin-bottom: 20px;
-            color: #333;
+            color: #444;
+        }
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s ease;
+        }
+        .tab.active {
+            background-color: #28a745;
+            color: white;
         }
         input[type="text"] {
             width: 100%;
@@ -44,6 +61,7 @@
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #218838;
@@ -65,29 +83,139 @@
             margin: 5px 0;
             color: #555;
         }
+        .song-list {
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        .song-item {
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .song-item:hover {
+            background-color: #e9ecef;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: blue;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Lyrics API Tester</h1>
-        <input type="text" id="titleInput" placeholder="Enter song title">
-        <button onclick="getLyrics()">Get Lyrics</button>
+        <h1>Volt⚡ Lyrics📜 API Tester</h1>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('title')">Search by Title🎵</div>
+            <div class="tab" onclick="switchTab('artist')">Search by Artist🗣</div>
+        </div>
+        <div id="titleTab">
+            <input type="text" id="titleInput" placeholder="Enter song title">
+            <button onclick="getLyricsByTitle()">Get Lyrics</button>
+        </div>
+        <div id="artistTab" style="display: none;">
+            <input type="text" id="artistInput" placeholder="Enter artist name">
+            <button onclick="getSongsByArtist()">Search Artist</button>
+            <div class="song-list" id="songList"></div>
+        </div>
         <div id="response" class="response" style="display: none;">
             <h3>Response:</h3>
-            <p><strong>Title:</strong> <span id="title"></span></p>
-            <p><strong>Artist:</strong> <span id="artist"></span></p>
-            <p><strong>Lyrics:</strong> <span id="lyrics"></span></p>
+            <p><strong>Title🎵:</strong> <span id="title"></span></p>
+            <p><strong>Artist🗣:</strong> <span id="artist"></span></p>
+            <p><strong>Lyrics📜:</strong> <span id="lyrics"></span></p>
         </div>
+        <footer>
+            Copyright Voltage⚡Lord 2025
+        </footer>
     </div>
 
     <script>
-        async function getLyrics() {
+        let currentTab = 'title';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('titleTab').style.display = tab === 'title' ? 'block' : 'none';
+            document.getElementById('artistTab').style.display = tab === 'artist' ? 'block' : 'none';
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+        }
+
+        async function getLyricsByTitle() {
             const title = document.getElementById("titleInput").value.trim();
             if (!title) {
                 alert("Please enter a song title!");
                 return;
             }
 
+            const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/title?title=${encodeURIComponent(title)}`;
+            console.log(`Requesting URL: ${apiUrl}`); // Log the requested URL for debugging
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data); // Log the API response
+
+                if (data && data.title && data.lyrics) {
+                    document.getElementById("title").textContent = data.title;
+                    document.getElementById("artist").textContent = data.artist || "Unknown";
+                    document.getElementById("lyrics").textContent = data.lyrics;
+                    document.getElementById("response").style.display = "block";
+                } else {
+                    alert(`❌ No lyrics found for "${title}".`);
+                }
+            } catch (error) {
+                console.error('API Error:', error); // Log the error
+                alert("⚠️ An error occurred while fetching the lyrics. Please try again later.");
+            }
+        }
+
+        async function getSongsByArtist() {
+            const artist = document.getElementById("artistInput").value.trim();
+            if (!artist) {
+                alert("Please enter an artist name!");
+                return;
+            }
+
+            const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/artist?artist=${encodeURIComponent(artist)}`;
+            console.log(`Requesting URL: ${apiUrl}`); // Log the requested URL for debugging
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data); // Log the API response
+
+                if (data && data.songs && data.songs.length > 0) {
+                    const songList = document.getElementById("songList");
+                    songList.innerHTML = data.songs.map(song => `
+                        <div class="song-item" onclick="getLyricsByTitle('${song.title}')">
+                            ${song.title}
+                        </div>
+                    `).join("");
+                } else {
+                    alert(`❌ No songs found for artist "${artist}".`);
+                }
+            } catch (error) {
+                console.error('API Error:', error); // Log the error
+                alert("⚠️ An error occurred while fetching the songs. Please try again later.");
+            }
+        }
+
+        async function getLyricsByTitle(title) {
             const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/title?title=${encodeURIComponent(title)}`;
             console.log(`Requesting URL: ${apiUrl}`); // Log the requested URL for debugging
 
