@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lyrics API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: left;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+        .response h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .response p {
+            margin: 5px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lyrics API Tester</h1>
+        <input type="text" id="titleInput" placeholder="Enter song title">
+        <button onclick="getLyrics()">Get Lyrics</button>
+        <div id="response" class="response" style="display: none;">
+            <h3>Response:</h3>
+            <p><strong>Title:</strong> <span id="title"></span></p>
+            <p><strong>Artist:</strong> <span id="artist"></span></p>
+            <p><strong>Lyrics:</strong> <span id="lyrics"></span></p>
+        </div>
+    </div>
+
+    <script>
+        async function getLyrics() {
+            const title = document.getElementById("titleInput").value.trim();
+            if (!title) {
+                alert("Please enter a song title!");
+                return;
+            }
+
+            const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/title?title=${encodeURIComponent(title)}`;
+            console.log(`Requesting URL: ${apiUrl}`); // Log the requested URL for debugging
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data); // Log the API response
+
+                if (data && data.title && data.lyrics) {
+                    document.getElementById("title").textContent = data.title;
+                    document.getElementById("artist").textContent = data.artist || "Unknown";
+                    document.getElementById("lyrics").textContent = data.lyrics;
+                    document.getElementById("response").style.display = "block";
+                } else {
+                    alert(`❌ No lyrics found for "${title}".`);
+                }
+            } catch (error) {
+                console.error('API Error:', error); // Log the error
+                alert("⚠️ An error occurred while fetching the lyrics. Please try again later.");
+            }
+        }
+    </script>
+</body>
+</html>
