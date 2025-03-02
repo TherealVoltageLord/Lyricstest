@@ -4,8 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volt⚡Lyrics📜 API Tester</title>
+    <meta name="description" content="Volt⚡Lyrics📜 API Tester - Search for song lyrics by title or artist.">
+    <meta name="keywords" content="lyrics, song, music, api, tester">
+    <meta name="author" content="Voltage Lord">
+    <meta property="og:title" content="Volt⚡Lyrics📜 API Tester">
+    <meta property="og:description" content="Search for song lyrics by title or artist.">
+    <meta property="og:image" content="https://files.catbox.moe/5z47b4.jpeg">
+    <link rel="icon" href="https://files.catbox.moe/5z47b4.jpeg" type="image/x-icon">
     <style>
-        body {
+       body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -16,6 +23,10 @@
             height: 100vh;
             color: orangered;
         }
+        body.dark-mode {
+            background: linear-gradient(135deg, #333, #000);
+            color: #fff;
+        }
         .container {
             background: coral;
             padding: 20px;
@@ -24,9 +35,13 @@
             width: 400px;
             text-align: center;
         }
+        body.dark-mode .container {
+            background: #444;
+            color: #fff;
+        }
         h1 {
             margin-bottom: 20px;
-            color: #444;
+            color: red;
         }
         .tabs {
             display: flex;
@@ -75,13 +90,23 @@
             text-align: left;
             white-space: pre-wrap; /* Preserve line breaks */
         }
+        body.dark-mode .response {
+            background: #555;
+            color: #fff;
+        }
         .response h3 {
             margin-top: 0;
             color: #333;
         }
+        body.dark-mode .response h3 {
+            color: #fff;
+        }
         .response p {
             margin: 5px 0;
             color: #555;
+        }
+        body.dark-mode .response p {
+            color: #fff;
         }
         .song-list {
             margin-top: 10px;
@@ -92,6 +117,10 @@
             padding: 10px;
             background-color: #f8f9fa;
         }
+        body.dark-mode .song-list {
+            background: #555;
+            color: #fff;
+        }
         .song-item {
             padding: 5px;
             cursor: pointer;
@@ -101,145 +130,392 @@
         .song-item:hover {
             background-color: #e9ecef;
         }
+        body.dark-mode .song-item:hover {
+            background-color: #666;
+        }
         footer {
             margin-top: 20px;
             text-align: center;
             color: blue;
             font-size: 14px;
         }
+        body.dark-mode footer {
+            color: #fff;
+        }
+        #loading {
+            display: none;
+            margin-top: 10px;
+        }
+        #recentSearches {
+            margin-top: 20px;
+        }
+        #recentList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #recentList li {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        #recentList li:hover {
+            background-color: #e9ecef;
+        }
+        body.dark-mode #recentList li:hover {
+            background-color: #666;
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .tab {
+                margin-bottom: 10px;
+            }
+        }
+        /* New CSS for the custom alert */
+        .custom-alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: url('https://ibb.co/mV6FxgjX') center/cover no-repeat;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.5s ease-out;
+            width: 350px; /* Fixed width */
+            text-align: center;
+        }
+
+        .custom-alert input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .custom-alert input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .custom-alert input:focus {
+            border-color: #28a745;
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .custom-alert button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .custom-alert button.cancel {
+            background: #dc3545;
+            margin-top: 5px;
+        }
+
+        .custom-alert button:hover {
+            opacity: 0.9;
+        }
+
+        .custom-alert .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .custom-alert {
+                width: 90%;
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Volt⚡ Lyrics📜 API Tester</h1>
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('title')">Search by Title🎵</div>
-            <div class="tab" onclick="switchTab('artist')">Search by Artist🗣</div>
-        </div>
-        <div id="titleTab">
-            <input type="text" id="titleInput" placeholder="Enter song title">
-            <button onclick="getLyricsByTitle()">Get Lyrics</button>
-        </div>
-        <div id="artistTab" style="display: none;">
-            <input type="text" id="artistInput" placeholder="Enter artist name">
-            <button onclick="getSongsByArtist()">Search Artist</button>
-            <div class="song-list" id="songList"></div>
-        </div>
-        <div id="response" class="response" style="display: none;">
-            <h3>Response:</h3>
-            <p><strong>Title🎵:</strong> <span id="title"></span></p>
-            <p><strong>Artist🗣:</strong> <span id="artist"></span></p>
-            <p><strong>Lyrics📜:</strong> <span id="lyrics"></span></p>
-        </div>
-        <footer>
-            Copyright Voltage⚡Lord 2025
-        </footer>
+  <div class="container">
+    <h1>Volt⚡ Lyrics📜 API Tester</h1>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('title')">Search by Title🎵</div>
+      <div class="tab" onclick="switchTab('artist')">Search by Artist🗣</div>
+    </div>
+    <div id="titleTab">
+      <input type="text" id="titleInput" placeholder="Enter song title">
+      <button onclick="getLyricsByTitle()">Get Lyrics</button>
+    </div>
+    <div id="artistTab" style="display: none;">
+      <input type="text" id="artistInput" placeholder="Enter artist name">
+      <button onclick="getSongsByArtist()">Search Artist</button>
+      <div class="song-list" id="songList"></div>
+    </div>
+    <div id="response" class="response" style="display: none;">
+      <h3>Response:</h3>
+      <p><strong>Title🎵:</strong> <span id="title"></span></p>
+      <p><strong>Artist🗣:</strong> <span id="artist"></span></p>
+      <p><strong>Lyrics📜:</strong> <span id="lyrics"></span></p>
+    </div>
+    <div id="loading">
+      <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." width="50" height="50">
+    </div>
+    <div id="recentSearches">
+      <h3>Recent Searches</h3>
+      <ul id="recentList"></ul>
+    </div>
+    <button onclick="clearFields()">Clear</button>
+    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    <footer>
+      Copyright Voltage⚡Lord 2025 |
+      <a href="https://github.com/yourusername" target="_blank">GitHub</a> |
+      <a href="https://yourwebsite.com" target="_blank">Documentation</a>
+    </footer>
+  </div>
+    </div>
+
+    <!-- Custom Alert -->
+    <div id="customAlert" class="custom-alert">
+        <span class="close-btn" onclick="closeAlert()">×</span>
+        <p>🎵 Any song you wish for the lyrics to be here?</p>
+        <input type="text" id="alertSongName" placeholder="Song Name">
+        <input type="text" id="alertArtistName" placeholder="Artist Name">
+        <button onclick="sendRequest()">Send 📤</button>
+        <button class="cancel" onclick="closeAlert()">Cancel</button>
     </div>
 
     <script>
-        let currentTab = 'title';
+       let currentTab = 'title';
+let recentSearches = [];
 
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('titleTab').style.display = tab === 'title' ? 'block' : 'none';
-            document.getElementById('artistTab').style.display = tab === 'artist' ? 'block' : 'none';
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
-        }
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('titleTab').style.display = tab === 'title' ? 'block' : 'none';
+  document.getElementById('artistTab').style.display = tab === 'artist' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
 
-        async function getLyricsByTitle() {
-            const title = document.getElementById("titleInput").value.trim();
-            if (!title) {
-                alert("Please enter a song title!");
-                return;
-            }
+  // Auto-focus on the input field
+  if (tab === 'title') {
+    document.getElementById('titleInput').focus();
+  } else {
+    document.getElementById('artistInput').focus();
+  }
+}
 
-            const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/title?title=${encodeURIComponent(title)}`;
-            console.log(`Requesting URL: ${apiUrl}`); // Log the requested URL for debugging
+async function getLyricsByTitle() {
+  const title = document.getElementById("titleInput").value.trim();
+  if (!title) {
+    alert("❌ Please enter a song title!");
+    return;
+  }
 
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+  // Show loading spinner
+  document.getElementById("loading").style.display = "block";
 
-                const data = await response.json();
-                console.log('API Response:', data); // Log the API response
+  const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/title?title=${encodeURIComponent(title)}`;
+  console.log(`Requesting URL: ${apiUrl}`);
 
-                if (data && data.title && data.lyrics) {
-                    document.getElementById("title").textContent = data.title;
-                    document.getElementById("artist").textContent = data.artist || "Unknown";
-                    document.getElementById("lyrics").textContent = data.lyrics;
-                    document.getElementById("response").style.display = "block";
-                } else {
-                    alert(`❌ No lyrics found for "${title}".`);
-                }
-            } catch (error) {
-                console.error('API Error:', error); // Log the error
-                alert("⚠️ An error occurred while fetching the lyrics. Please try again later.");
-            }
-        }
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
 
-        async function getSongsByArtist() {
-            const artist = document.getElementById("artistInput").value.trim();
-            if (!artist) {
-                alert("Please enter an artist name!");
-                return;
-            }
+    const data = await response.json();
+    console.log('API Response:', data);
 
-            const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/artist?artist=${encodeURIComponent(artist)}`;
-            console.log(`Requesting URL: ${apiUrl}`); // Log the requested URL for debugging
+    if (data && data.title && data.lyrics) {
+      document.getElementById("title").textContent = data.title;
+      document.getElementById("artist").textContent = data.artist || "Unknown";
+      document.getElementById("lyrics").textContent = data.lyrics;
+      document.getElementById("response").style.display = "block";
 
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+      // Add to recent searches
+      addToRecentSearches(title);
+    } else {
+      alert(`❌ No lyrics found for "${title}". Please try another song!`);
+    }
+  } catch (error) {
+    console.error('API Error:', error);
+    alert("⚠️ An error occurred while fetching the lyrics. Please try again later.");
+  } finally {
+    // Hide loading spinner
+    document.getElementById("loading").style.display = "none";
+  }
+}
 
-                const data = await response.json();
-                console.log('API Response:', data); // Log the API response
+async function getSongsByArtist() {
+  const artist = document.getElementById("artistInput").value.trim();
+  if (!artist) {
+    alert("❌ Please enter an artist name!");
+    return;
+  }
 
-                if (data && data.songs && data.songs.length > 0) {
-                    const songList = document.getElementById("songList");
-                    songList.innerHTML = data.songs.map(song => `
+  // Show loading spinner
+  document.getElementById("loading").style.display = "block";
+
+  const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/artist?artist=${encodeURIComponent(artist)}`;
+  console.log(`Requesting URL: ${apiUrl}`);
+
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('API Response:', data);
+
+    if (data && data.songs && data.songs.length > 0) {
+      const songList = document.getElementById("songList");
+      songList.innerHTML = data.songs.map(song => `
                         <div class="song-item" onclick="getLyricsByTitle('${song.title}')">
                             ${song.title}
                         </div>
                     `).join("");
-                } else {
-                    alert(`❌ No songs found for artist "${artist}".`);
-                }
-            } catch (error) {
-                console.error('API Error:', error); // Log the error
-                alert("⚠️ An error occurred while fetching the songs. Please try again later.");
+
+      // Add to recent searches
+      addToRecentSearches(artist);
+    } else {
+      alert(`❌ No songs found for artist "${artist}".`);
+    }
+  } catch (error) {
+    console.error('API Error:', error);
+    alert("⚠️ An error occurred while fetching the songs. Please try again later.");
+  } finally {
+    // Hide loading spinner
+    document.getElementById("loading").style.display = "none";
+  }
+}
+
+async function getLyricsByTitle(title) {
+  // Show loading spinner
+  document.getElementById("loading").style.display = "block";
+
+  const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/title?title=${encodeURIComponent(title)}`;
+  console.log(`Requesting URL: ${apiUrl}`);
+
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('API Response:', data);
+
+    if (data && data.title && data.lyrics) {
+      document.getElementById("title").textContent = data.title;
+      document.getElementById("artist").textContent = data.artist || "Unknown";
+      document.getElementById("lyrics").textContent = data.lyrics;
+      document.getElementById("response").style.display = "block";
+    } else {
+      alert(`❌ No lyrics found for "${title}".`);
+    }
+  } catch (error) {
+    console.error('API Error:', error);
+    alert("⚠️ An error occurred while fetching the lyrics. Please try again later.");
+  } finally {
+    // Hide loading spinner
+    document.getElementById("loading").style.display = "none";
+  }
+}
+
+function clearFields() {
+  document.getElementById("titleInput").value = "";
+  document.getElementById("artistInput").value = "";
+  document.getElementById("response").style.display = "none";
+  document.getElementById("songList").innerHTML = "";
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+}
+
+function addToRecentSearches(query) {
+  recentSearches.unshift(query); // Add to the beginning of the array
+  if (recentSearches.length > 5) {
+    recentSearches.pop(); // Keep only the last 5 searches
+  }
+  updateRecentSearches();
+}
+
+function updateRecentSearches() {
+  const recentList = document.getElementById("recentList");
+  recentList.innerHTML = recentSearches.map(search => `
+                <li onclick="searchAgain('${search}')">${search}</li>
+            `).join("");
+}
+
+function searchAgain(query) {
+  if (currentTab === 'title') {
+    document.getElementById('titleInput').value = query;
+    getLyricsByTitle();
+  } else {
+    document.getElementById('artistInput').value = query;
+    getSongsByArtist();
+  }
+}
+
+        // Show custom alert after 10 seconds
+        setTimeout(() => {
+            const customAlert = document.getElementById("customAlert");
+            customAlert.style.display = "block";
+            document.getElementById("alertSongName").focus(); // Auto-focus on the first input
+        }, 10000); // 10 seconds
+
+        // Function to send the request via WhatsApp
+        function sendRequest() {
+            const songName = document.getElementById("alertSongName").value.trim();
+            const artistName = document.getElementById("alertArtistName").value.trim();
+
+            if (!songName || !artistName) {
+                alert("❌ Please fill in both Song Name and Artist Name!");
+                return;
             }
+
+            const message = `I want the lyrics for:\n🎵 Song: ${songName}\n🗣 Artist: ${artistName}`;
+            const whatsappUrl = `https://wa.me/2347045674902?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, "_blank");
+
+            closeAlert();
         }
 
-        async function getLyricsByTitle(title) {
-            const apiUrl = `https://voltagelord-voltlyriks.hf.space/lyrics/title?title=${encodeURIComponent(title)}`;
-            console.log(`Requesting URL: ${apiUrl}`); // Log the requested URL for debugging
-
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('API Response:', data); // Log the API response
-
-                if (data && data.title && data.lyrics) {
-                    document.getElementById("title").textContent = data.title;
-                    document.getElementById("artist").textContent = data.artist || "Unknown";
-                    document.getElementById("lyrics").textContent = data.lyrics;
-                    document.getElementById("response").style.display = "block";
-                } else {
-                    alert(`❌ No lyrics found for "${title}".`);
-                }
-            } catch (error) {
-                console.error('API Error:', error); // Log the error
-                alert("⚠️ An error occurred while fetching the lyrics. Please try again later.");
-            }
+        // Function to close the custom alert
+        function closeAlert() {
+            document.getElementById("customAlert").style.display = "none";
         }
     </script>
 </body>
